@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Offline 3D Map</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- MapLibre GL JS -->
+    <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+    
+    <style>
+        body { margin: 0; padding: 0; background-color: #000; }
+        #map { width: 100vw; height: 100vh; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        const map = new maplibregl.Map({
+            container: 'map',
+            center: [73.04, 33.68], // Your downloaded area
+            zoom: 16, 
+            pitch: 60, 
+            
+            // CAMERA LIMITS: Allow zooming very close (Fake Zoom)
+            maxZoom: 22, 
+            
+            style: {
+                version: 8,
+                sources: {
+                    'local-satellite': {
+                        type: 'raster',
+                        tiles: ['http://localhost:8000/output_satellite_tiles/{z}/{x}/{y}.png'],
+                        tileSize: 256,
+                        
+                        // DATA LIMITS: Real files only exist up to 19
+                        minzoom: 0,
+                        maxzoom: 19 
+                    },
+                    'local-terrain': {
+                        type: 'raster-dem',
+                        tiles: ['http://localhost:8000/output_terrain_tiles/{z}/{x}/{y}.png'],
+                        tileSize: 256,
+                        encoding: 'mapbox',
+                        maxzoom: 12
+                    }
+                },
+                layers: [
+                    {
+                        'id': 'satellite-layer',
+                        'type': 'raster',
+                        'source': 'local-satellite'
+                    }
+                ],
+                terrain: { 
+                    source: 'local-terrain', 
+                    exaggeration: 1.5 
+                }
+            }
+        });
+
+        map.addControl(new maplibregl.NavigationControl());
+    </script>
+</body>
+</html>
